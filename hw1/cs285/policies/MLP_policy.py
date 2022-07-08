@@ -14,6 +14,16 @@ from cs285.policies.base_policy import BasePolicy
 
 
 class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
+    '''
+        - An abstract base class (ABC).
+        - It inherits from: 
+            - BasePolicy class in "policies/base_policy.py"
+            - nn.Module from torch.nn
+        - It overrides the methods:
+            - get_action() from BasePolicy class
+            - update() from BasePolicy class
+            - save from BasePolicy class
+    '''
 
     def __init__(self,
                  ac_dim,
@@ -26,6 +36,13 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
                  nn_baseline=False,
                  **kwargs
                  ):
+        '''
+            Intialize parameters for neural network
+            for policy.
+
+            params: 
+                - they're all self-explanatory. Read them.
+        '''
         super().__init__(**kwargs)
 
         # init vars
@@ -38,6 +55,8 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         self.training = training
         self.nn_baseline = nn_baseline
 
+        # If obs/action space is discrete
+        # no nead mean/std
         if self.discrete:
             self.logits_na = ptu.build_mlp(
                 input_size=self.ob_dim,
@@ -50,6 +69,9 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             self.logstd = None
             self.optimizer = optim.Adam(self.logits_na.parameters(),
                                         self.learning_rate)
+
+        # If obs/action space is continuous
+        # need to parametrize mean/std
         else:
             self.logits_na = None
             self.mean_net = ptu.build_mlp(
