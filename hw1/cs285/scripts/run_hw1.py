@@ -13,6 +13,7 @@ class BC_Trainer(object):
         ## AGENT PARAMS
         #######################
 
+        # dict to hold params associated to the agent
         agent_params = {
             'n_layers': params['n_layers'],
             'size': params['size'],
