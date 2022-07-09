@@ -187,27 +187,21 @@ class RL_Trainer(object):
                 - train_video_paths: 
                     paths which also contain videos for visualization purposes
         """
-
-        # TODO decide whether to load training data or use the current policy to collect more data
+        # TODO (DONE!)
+        #decide whether to load training data or use the current policy to collect more data
         # HINT: depending on if it's the first iteration or not, decide whether to either
                 # (1) load the data. In this case you can directly return as follows
                 # ``` return loaded_paths, 0, None ```
         if itr==1:
             # load the data
-            return loaded_paths, 0, None
-        else:
-            # collect `self.params['batch_size']` transitions
-            utils.sample_trajectories()
-            pass
+            return load_initial_expertdata, 0, None
 
-                
-
-        # TODO collect `batch_size` samples to be used for training
+        # TODO (DONE!)
+        # collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
-
         print("\nCollecting data to be used for training...")
-        paths, envsteps_this_batch = TODO
+        paths, envsteps_this_batch = utils.sample_trajectories(self.env, collect_policy, batch_size, MAX_VIDEO_LEN)
 
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
@@ -232,7 +226,7 @@ class RL_Trainer(object):
             ob_batch, ac_batch, re_batch, \
             next_ob_batch, terminal_batch = self.agent.sample(self.batch_size)
 
-            # TODO 
+            # TODO (DONE!)
             # use the sampled data to train an agent
             # HINT: use the agent's train function
             # HINT: keep the agent's training log for debugging
@@ -250,11 +244,19 @@ class RL_Trainer(object):
     def do_relabel_with_expert(self, expert_policy, paths):
         print("\nRelabelling collected observations with labels from an expert policy...")
 
-        # TODO relabel collected obsevations (from our policy) with labels from an expert policy
+        # TODO (DONE!)
+        # relabel collected obsevations (from our policy) with labels from an expert policy
         # HINT: query the policy (using the get_action function) with paths[i]["observation"]
         # and replace paths[i]["action"] with these expert labels
 
-
+        # Note: every path in paths is a list of dictionaries. 
+        # Each entry in the list is a dictionary.
+        # This dict contains keys: observation, image_obs, reward, action, next_observation,
+        #                          terminal
+        # where the the corresponding value of each of them are numpy arrays containing
+        # all observations, image_obs, rewards, action, etc. for that path(trajectory)
+        for path in paths:
+            path["action"]= expert_policy.get_action(path["observation"])
         return paths
 
     ####################################
