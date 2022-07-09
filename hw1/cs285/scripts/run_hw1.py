@@ -6,6 +6,9 @@ from cs285.agents.bc_agent import BCAgent
 from cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy
 
 class BC_Trainer(object):
+    # In Python 3, this inheritance of object, BC_Trainer(object)
+    # is unnecessary. All class implicitly inherits object in Python 3.
+    # https://stackoverflow.com/a/45062077
 
     def __init__(self, params):
 
@@ -43,9 +46,9 @@ class BC_Trainer(object):
 
         self.rl_trainer.run_training_loop(
             n_iter=self.params['n_iter'],
-            initial_expertdata=self.params['expert_data'],
             collect_policy=self.rl_trainer.agent.actor,
             eval_policy=self.rl_trainer.agent.actor,
+            initial_expertdata=self.params['expert_data'],
             relabel_with_expert=self.params['do_dagger'],
             expert_policy=self.loaded_expert_policy,
         )
@@ -61,7 +64,7 @@ def main():
     parser.add_argument('--do_dagger', action='store_true')
     parser.add_argument('--ep_len', type=int)
 
-    parser.add_argument('--num_agent_train_steps_per_iter', type=int, default=1000)  # number of gradient steps for training policy (per iter in n_iter)
+    parser.add_argument('--num_agent_train_steps_per_itr', type=int, default=1000)  # number of gradient steps for training policy (per iter in n_iter)
     parser.add_argument('--n_iter', '-n', type=int, default=1)
 
     parser.add_argument('--batch_size', type=int, default=1000)  # training data collected (in the env) during each iteration

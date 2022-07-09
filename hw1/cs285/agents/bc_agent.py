@@ -37,4 +37,5 @@ class BCAgent(BaseAgent):
         return self.replay_buffer.sample_random_data(batch_size)  # HW1: you will modify this
 
     def save(self, path):
+        # where path is filepath to save  not path containing trajectories rollouts
         return self.actor.save(path)

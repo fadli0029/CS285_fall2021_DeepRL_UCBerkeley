@@ -22,7 +22,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         - It overrides the methods:
             - get_action() from BasePolicy class
             - update() from BasePolicy class
-            - save from BasePolicy class
+            - save() from BasePolicy class
     '''
 
     def __init__(self,
@@ -91,6 +91,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
     ##################################
 
+    # we're saving states? - Fade
     def save(self, filepath):
         torch.save(self.state_dict(), filepath)
 

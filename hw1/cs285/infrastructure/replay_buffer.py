@@ -1,5 +1,5 @@
 from cs285.infrastructure.utils import *
-
+from numpy.random import default_rng 
 
 class ReplayBuffer(object):
 
@@ -7,7 +7,8 @@ class ReplayBuffer(object):
 
         self.max_size = max_size
 
-        # store each rollout
+        # store each rollout (a rollout is one complete trajectory, so paths
+        # is a list holding trajectories)
         self.paths = []
 
         # store (concatenated) component arrays from each rollout
@@ -30,11 +31,15 @@ class ReplayBuffer(object):
             self.paths.append(path)
 
         # convert new rollouts into their component arrays, and append them onto
-        # our arrays
+        # our arrays.
+        # convert_listofrollouts is from .utils
         observations, actions, rewards, next_observations, terminals = (
-            convert_listofrollouts(paths, concat_rew))
+            convert_listofrollouts(paths, concat_rew)) 
 
         if self.obs is None:
+            # 'x = an_array[-k:]' means take the k most recent items in an_array. Ex:
+            # an_array = np.array([1, 2, 3, 4, 5, 6])
+            # if k = 3, then x = [4, 5, 6]
             self.obs = observations[-self.max_size:]
             self.acs = actions[-self.max_size:]
             self.rews = rewards[-self.max_size:]
@@ -71,13 +76,21 @@ class ReplayBuffer(object):
                 == self.next_obs.shape[0]
                 == self.terminals.shape[0]
         )
-
-        ## TODO return batch_size number of random entries from each of the 5 component arrays above
-        ## HINT 1: use np.random.permutation to sample random indices
-        ## HINT 2: return corresponding data points from each array (i.e., not different indices from each array)
-        ## HINT 3: look at the sample_recent_data function below
-
-        return TODO, TODO, TODO, TODO, TODO
+        # TODO (DONE!)
+        # return batch_size number of random entries from each of
+        # the 5 component arrays above
+        # HINT 1: use np.random.permutation to sample random indices
+        # HINT 2: return corresponding data points from each 
+        #         array (i.e., not different indices from each array)
+        # HINT 3: look at the sample_recent_data function below
+        rng = default_rng()
+        return (
+            self.obs[rng.permutation(batch_size)], 
+            self.acs[rng.permutation(batch_size)], 
+            self.rews[rng.permutation(batch_size)], 
+            self.next_obs[rng.permutation(batch_size)], 
+            self.terminals[rng.permutation(batch_size)]
+        )
 
     def sample_recent_data(self, batch_size=1):
         return (

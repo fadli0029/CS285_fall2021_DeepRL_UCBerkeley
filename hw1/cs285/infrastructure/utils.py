@@ -5,9 +5,18 @@ import time
 ############################################
 
 def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('rgb_array')):
+    '''
+        sample one complete trajectory (or a.k.a episode) in environment
+        env, under the given policy.
+        params:
+            - env: the environment in which we're acting and observing
+            - policy: policy used to interact in the environment
+            - max_path_length: the maximum length for one trajectory in the
+                               environment
+    '''
 
     # initialize env for the beginning of a new rollout
-    ob = TODO # HINT: should be the output of resetting the env
+    ob = env.reset() # HINT: should be the output of resetting the env
 
     # init vars
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
@@ -27,7 +36,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
 
         # use the most recent ob to decide what to do
         obs.append(ob)
-        ac = TODO # HINT: query the policy's get_action function
+        ac = policy.get_action(obs) # HINT: query the policy's get_action function
         ac = ac[0]
         acs.append(ac)
 
@@ -39,9 +48,10 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
         next_obs.append(ob)
         rewards.append(rew)
 
-        # TODO end the rollout if the rollout ended
+        # TODO (DONE!)
+        # end the rollout if the rollout ended
         # HINT: rollout can end due to done, or due to max_path_length
-        rollout_done = TODO # HINT: this is either 0 or 1
+        rollout_done = steps==max_path_length or done # HINT: this is either 0 or 1
         terminals.append(rollout_done)
 
         if rollout_done:
@@ -53,6 +63,8 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
     """
         Collect rollouts until we have collected min_timesteps_per_batch steps.
 
+        Rollouts here means n trajectories.
+
         TODO implement this function
         Hint1: use sample_trajectory to get each path (i.e. rollout) that goes into paths
         Hint2: use get_pathlength to count the timesteps collected in each path
@@ -60,22 +72,23 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
     timesteps_this_batch = 0
     paths = []
     while timesteps_this_batch < min_timesteps_per_batch:
-
-        TODO
-
+        # TODO (DONE!)
+        paths.append(sample_trajectory(env, policy, max_path_length, render, render_mode))
+        timesteps_this_batch+=get_pathlength(paths)
     return paths, timesteps_this_batch
 
 def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, render_mode=('rgb_array')):
     """
-        Collect ntraj rollouts.
+        Collect n trajectories rollouts, where n is specified by ntraj.
 
         TODO implement this function
         Hint1: use sample_trajectory to get each path (i.e. rollout) that goes into paths
     """
     paths = []
 
-    TODO
-
+    # TODO (DONE!)
+    for i in range(ntraj):
+        paths.append(sample_trajectory(env, policy, max_path_length, render, render_mode))
     return paths
 
 ############################################
@@ -104,12 +117,12 @@ def convert_listofrollouts(paths, concat_rew=True):
     """
     observations = np.concatenate([path["observation"] for path in paths])
     actions = np.concatenate([path["action"] for path in paths])
+    next_observations = np.concatenate([path["next_observation"] for path in paths])
+    terminals = np.concatenate([path["terminal"] for path in paths])
     if concat_rew:
         rewards = np.concatenate([path["reward"] for path in paths])
     else:
         rewards = [path["reward"] for path in paths]
-    next_observations = np.concatenate([path["next_observation"] for path in paths])
-    terminals = np.concatenate([path["terminal"] for path in paths])
     return observations, actions, rewards, next_observations, terminals
 
 ############################################

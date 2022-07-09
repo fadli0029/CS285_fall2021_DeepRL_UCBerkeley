@@ -9,12 +9,19 @@ from cs285.infrastructure import pytorch_util as ptu
 from cs285.infrastructure.logger import Logger
 from cs285.infrastructure import utils
 
-# how many rollouts to save as videos to tensorboard
-MAX_NVIDEO = 2
+
+MAX_NVIDEO = 2      # how many rollouts to save as videos to tensorboard
 MAX_VIDEO_LEN = 40  # we overwrite this in the code below
+
+# NOTE:
+#   - MAX_NVIDEO becomes ntraj in utils.sample_n_trajectories
+#   - MAX_VIDEO_LEN becomes max_path_length in utils.sample_n_trajectories
 
 
 class RL_Trainer(object):
+    # In Python 3, this inheritance of object, BC_Trainer(object)
+    # is unnecessary. All class implicitly inherits object in Python 3.
+    # https://stackoverflow.com/a/45062077
 
     def __init__(self, params):
 
@@ -68,20 +75,37 @@ class RL_Trainer(object):
         ## AGENT
         #############
 
+        # self.params['agent_class'] is set as BCAgent, see scripts/run_hw1.py
         agent_class = self.params['agent_class']
         self.agent = agent_class(self.env, self.params['agent_params'])
 
-    def run_training_loop(self, n_iter, collect_policy, eval_policy,
-                        initial_expertdata=None, relabel_with_expert=False,
-                        start_relabel_with_expert=1, expert_policy=None):
+    def run_training_loop(self, 
+        n_iter, 
+        collect_policy, 
+        eval_policy, 
+        initial_expertdata=None, 
+        relabel_with_expert=False,
+        expert_policy=None,
+        start_relabel_with_expert=1
+    ):
         """
-        :param n_iter:  number of (dagger) iterations
-        :param collect_policy:
-        :param eval_policy:
-        :param initial_expertdata:
-        :param relabel_with_expert:  whether to perform dagger
-        :param start_relabel_with_expert: iteration at which to start relabel with expert
-        :param expert_policy:
+            params:
+                - n_iter: 
+                    self.params['n_iter'], no. of iterations (command line arg),
+                    default is 1
+                - collect_policy:
+                    self.rl_trainer.agent.actor, where actor is 
+                    MLPPolicySL object (see agents/bc_agent.py)
+                - eval_policy:
+                    self.rl_trainer.agent.actor
+                - initial_expertdata:
+                    self.params['expert_data'], a .pkl file in expert_data/*.pkl
+                - relabel_with_expert:
+                    self.params['do_dagger'], a bool (True by default)
+                - expert_policy:
+                    self.loaded_expert_policy = LoadedGaussianPolicy(...)
+                - start_relabel_with_expert:
+                    iteration at which to start relabel with expert
         """
 
         # init vars at beginning of training
@@ -138,34 +162,50 @@ class RL_Trainer(object):
     ####################################
     ####################################
 
-    def collect_training_trajectories(
-            self,
-            itr,
-            load_initial_expertdata,
-            collect_policy,
-            batch_size,
+    def collect_training_trajectories(self,
+        itr,
+        load_initial_expertdata,
+        collect_policy,
+        batch_size,
     ):
         """
-        :param itr:
-        :param load_initial_expertdata:  path to expert data pkl file
-        :param collect_policy:  the current policy we use to collect data
-        :param batch_size:  the number of transitions we collect
-        :return:
-            paths: a list trajectories
-            envsteps_this_batch: the sum over the numbers of environment steps in paths
-            train_video_paths: paths which also contain videos for visualization purposes
+            params:
+                - itr: 
+                    the ith iteration out of n_iter
+                - load_initial_expertdata;
+                    self.params['expert_data'], a .pkl file in expert_data/*.pkl
+                - collect_policy:
+                    self.rl_trainer.agent.actor, where actor is 
+                    MLPPolicySL object (see agents/bc_agent.py)
+                - batch_size:
+                    self.params['batch_size'], default is 1000
+            returns:
+                - paths: 
+                    a list trajectories
+                - envsteps_this_batch: 
+                    the sum over the numbers of environment steps in paths
+                - train_video_paths: 
+                    paths which also contain videos for visualization purposes
         """
 
         # TODO decide whether to load training data or use the current policy to collect more data
         # HINT: depending on if it's the first iteration or not, decide whether to either
                 # (1) load the data. In this case you can directly return as follows
                 # ``` return loaded_paths, 0, None ```
+        if itr==1:
+            # load the data
+            return loaded_paths, 0, None
+        else:
+            # collect `self.params['batch_size']` transitions
+            utils.sample_trajectories()
+            pass
 
-                # (2) collect `self.params['batch_size']` transitions
+                
 
         # TODO collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
+
         print("\nCollecting data to be used for training...")
         paths, envsteps_this_batch = TODO
 
@@ -174,7 +214,7 @@ class RL_Trainer(object):
         train_video_paths = None
         if self.log_video:
             print('\nCollecting train rollouts to be used for saving videos...')
-            ## TODO look in utils and implement sample_n_trajectories
+            ## TODO (DONE!)
             train_video_paths = utils.sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
 
         return paths, envsteps_this_batch, train_video_paths
@@ -185,16 +225,26 @@ class RL_Trainer(object):
         all_logs = []
         for train_step in range(self.params['num_agent_train_steps_per_iter']):
 
-            # TODO sample some data from the data buffer
+            # TODO (DONE!)
+            # sample some data from the data buffer
             # HINT1: use the agent's sample function
             # HINT2: how much data = self.params['train_batch_size']
-            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = TODO
+            ob_batch, ac_batch, re_batch, \
+            next_ob_batch, terminal_batch = self.agent.sample(self.batch_size)
 
-            # TODO use the sampled data to train an agent
+            # TODO 
+            # use the sampled data to train an agent
             # HINT: use the agent's train function
             # HINT: keep the agent's training log for debugging
-            train_log = TODO
+            train_log = self.agent.train(
+                ob_batch, 
+                ac_batch, 
+                re_batch, 
+                next_ob_batch, 
+                terminal_batch)
             all_logs.append(train_log)
+
+            train_step+=1
         return all_logs
 
     def do_relabel_with_expert(self, expert_policy, paths):
@@ -203,6 +253,7 @@ class RL_Trainer(object):
         # TODO relabel collected obsevations (from our policy) with labels from an expert policy
         # HINT: query the policy (using the get_action function) with paths[i]["observation"]
         # and replace paths[i]["action"] with these expert labels
+
 
         return paths
 
