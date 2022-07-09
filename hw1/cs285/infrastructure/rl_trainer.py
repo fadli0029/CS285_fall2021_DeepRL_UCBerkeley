@@ -255,6 +255,7 @@ class RL_Trainer(object):
         #                          terminal
         # where the the corresponding value of each of them are numpy arrays containing
         # all observations, image_obs, rewards, action, etc. for that path(trajectory)
+        # see utils.py for reference of this Note
         for path in paths:
             path["action"]= expert_policy.get_action(path["observation"])
         return paths

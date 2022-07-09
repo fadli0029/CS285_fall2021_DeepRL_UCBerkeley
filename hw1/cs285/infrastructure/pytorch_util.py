@@ -51,14 +51,14 @@ def build_mlp(
     layers = []
     # 1st hidden layer
     layers.append(nn.Linear(input_size, size))
-    layers.append(_str_to_activation[activation])
+    layers.append(activation)
     # for the next layers up until the last one
     for i in range(n_layers-1): # not sure, maybe -2?
         layers.append(nn.Linear(size, size))
-        layers.append(_str_to_activation(activation))
+        layers.append(activation)
     # for the last layer (output)
     layers.append(nn.Linear(size, output_size))
-    layers.append(_str_to_activation[output_activation])
+    layers.append(output_activation)
     return nn.Sequential(*layers)
 
 device = None
