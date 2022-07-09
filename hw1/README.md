@@ -109,10 +109,10 @@ Distribution over observation? Distributional shift problem?
 - Dataset Aggregation (DAgger):
   - The goal is to collect training data that comes from $p_{\pi_{\theta}}(\mathbf{o_t})$ instead of $p_{data}(\mathbf{o_t})$. Let's call this dataset $\mathcal{D}_{\pi}$.
   - The algorithm is as follows:
-    1. train $\pi_{\theta}(\mathbf{a_t}\,|\,\mathbf{o_t})$ from human data $\mathcal{D} = \{\mathbf{o_1},\mathbf{a_1},\ldots,\mathbf{o_N},\mathbf{a_N}\}$
-    2. run $\pi_{\theta}(\mathbf{a_t}\,|\,\mathbf{o_t})$ to get dataset $\mathcal{D}_{\pi} = \{\mathbf{o_1},\ldots,\mathbf{o_M}\}$
+    1. train $\pi_{\theta}(\mathbf{a_t}\, | \, \mathbf{o_t})$ from human data $\mathcal{D} = \{ \mathbf{o_1},\mathbf{a_1},\ldots,\mathbf{o_N},\mathbf{a_N} \}$
+    2. run $\pi_{\theta}(\mathbf{a_t}\, | \, \mathbf{o_t})$ to get dataset $\mathcal{D}_{\pi} = \{ \mathbf{o_1}, \ldots, \mathbf{o_M} \}$
     3. ask a human (expert) to label $\mathcal{D}_{\pi}$ with actions $\mathbf{a_t}$. Yes, literaly ask a human.
-    4. Aggregate (merge): $\mathcal{D}\,\cup\,\mathcal{D}_{\pi}$
+    4. Aggregate (merge): $\mathcal{D} \,\cup \,\mathcal{D}_{\pi}$
 
 
 
