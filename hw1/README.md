@@ -82,7 +82,7 @@ Imitation Learning
 - take some labeled data.
 - use that label data to learn some policy.
 - for example, we get an image of a human driving. We label that image with an action (ex: steering wheel angle) and an observation (ex: camera attached to the car).
-- then, we proceed collecting a large dataset consisting of image and action tuples.
+- then, we proceed collecting a large dataset consisting of observation-action tuples.
 - And we perform supervised learning.
 
 
@@ -96,13 +96,24 @@ In this lecture we focused on two particular classes of Imitation Learning:
     - The moment it makes this mistake, it will be in a state $s$, where $s$ is a state it has not learned before, i.e: it is not in the training trajectory.
     - Due to this "shocking" observation, the "learned" policy will take an action that is not ideal or aligned with the training trajectory.
     - So the trajectory of the policy will diverge from the training trajectory.
-    - This divergence will carry on until overtime at the end of its trajectory, we see that it is not at an ideal state.
+    - This divergence will carry on until overtime at the end of its trajectory, we see that it is not in an ideal state.
   - But... Sometimes it works.. How?
     - Well, we can modify our training data (i.e: set of training trajectories) to contain mistakes and the corresponding corrections of those mistakes.
     - This way, the policy will learn these corrections and adapt.
 
-Distribution over observation?
-- Dataset Aggregation (DAgger)
+```
+TODO:
+
+Distribution over observation? Distributional shift problem?
+```
+- Dataset Aggregation (DAgger):
+  - The goal is to collect training data that comes from $p_{\pi_{\theta}}(\mathbf{o_t})$ instead of $p_{data}(\mathbf{o_t})$. Let's call this dataset $\mathcal{D}_{\pi}$.
+  - The algorithm is as follows:
+    1. train $\pi_{\theta}(\mathbf{a_t}\,|\,\mathbf{o_t})$ from human data $\mathcal{D} = \{\mathbf{o_1},\mathbf{a_1},\ldots,\mathbf{o_N},\mathbf{a_N}\}$
+    2. run $\pi_{\theta}(\mathbf{a_t}\,|\,\mathbf{o_t})$ to get dataset $\mathcal{D}_{\pi} = \{\mathbf{o_1},\ldots,\mathbf{o_M}\}$
+    3. ask a human (expert) to label $\mathcal{D}_{\pi}$ with actions $\mathbf{a_t}$. Yes, literaly ask a human.
+    4. Aggregate (merge): $\mathcal{D}\,\cup\,\mathcal{D}_{\pi}$
+
 
 
 
