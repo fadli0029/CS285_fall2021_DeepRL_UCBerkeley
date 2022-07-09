@@ -58,6 +58,7 @@ class RL_Trainer(object):
         self.params['agent_params']['ob_dim'] = ob_dim
 
         # simulation timestep, will be used for video saving
+        # note: I still don't get what this is doing - Fade
         if 'model' in dir(self.env):
             self.fps = 1/self.env.model.opt.timestep
         else:
@@ -147,7 +148,7 @@ class RL_Trainer(object):
         """
         :param itr:
         :param load_initial_expertdata:  path to expert data pkl file
-        :param collect_policy:  the current policy using which we collect data
+        :param collect_policy:  the current policy we use to collect data
         :param batch_size:  the number of transitions we collect
         :return:
             paths: a list trajectories

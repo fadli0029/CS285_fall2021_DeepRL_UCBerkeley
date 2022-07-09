@@ -75,3 +75,34 @@ tensorboard --logdir data/run1,data/run2,data/run3...
 
 If running on Colab, you will be using the `%tensorboard` [line magic](https://ipython.readthedocs.io/en/stable/interactive/magics.html) to do the same thing; see the [notebook](cs285/scripts/run_hw1.ipynb) for more details.
 
+## Notes
+Relevant lectures for this homework is [lecture 2 (all parts)](https://www.youtube.com/watch?v=HUzyjOsd2PA&list=PL_iWQOsE6TfXxKgI1GgyV1B_Xa0DxE5eH&index=5)
+
+Imitation Learning
+- take some labeled data.
+- use that label data to learn some policy.
+- for example, we get an image of a human driving. We label that image with an action (ex: steering wheel angle) and an observation (ex: camera attached to the car).
+- then, we proceed collecting a large dataset consisting of image and action tuples.
+- And we perform supervised learning.
+
+
+In this lecture we focused on two particular classes of Imitation Learning:
+- Behavioral cloning:
+  - It's like the above example where we copy the actions of human driving a vehicle, collect a dataset and perform supervised learning to learn a policy.
+  - The problem with behavorial cloning is the following:
+    - Suppose we have our training trajectory, and we learn a policy $\pi$ from this training trajectory.
+    - When we run this learned policy, maybe for the first few time steps it works well. 
+    - But like all models, it will make a mistake. 
+    - The moment it makes this mistake, it will be in a state $s$, where $s$ is a state it has not learned before, i.e: it is not in the training trajectory.
+    - Due to this "shocking" observation, the "learned" policy will take an action that is not ideal or aligned with the training trajectory.
+    - So the trajectory of the policy will diverge from the training trajectory.
+    - This divergence will carry on until overtime at the end of its trajectory, we see that it is not at an ideal state.
+  - But... Sometimes it works.. How?
+    - Well, we can modify our training data (i.e: set of training trajectories) to contain mistakes and the corresponding corrections of those mistakes.
+    - This way, the policy will learn these corrections and adapt.
+
+Distribution over observation?
+- Dataset Aggregation (DAgger)
+
+
+
