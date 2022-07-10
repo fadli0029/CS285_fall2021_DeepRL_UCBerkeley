@@ -9,6 +9,8 @@ from cs285.infrastructure import pytorch_util as ptu
 from cs285.infrastructure.logger import Logger
 from cs285.infrastructure import utils
 
+import pickle
+
 
 MAX_NVIDEO = 2      # how many rollouts to save as videos to tensorboard
 MAX_VIDEO_LEN = 40  # we overwrite this in the code below
@@ -194,14 +196,16 @@ class RL_Trainer(object):
                 # ``` return loaded_paths, 0, None ```
         if itr==1:
             # load the data
-            return load_initial_expertdata, 0, None
+            with open(load_initial_expertdata, 'rb') as f:
+                loaded_paths = pickle.load(f)
+            return loaded_paths, 0 , None
 
         # TODO (DONE!)
         # collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
         print("\nCollecting data to be used for training...")
-        paths, envsteps_this_batch = utils.sample_trajectories(self.env, collect_policy, batch_size, MAX_VIDEO_LEN)
+        paths, envsteps_this_batch = utils.sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'])
 
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
@@ -217,14 +221,14 @@ class RL_Trainer(object):
     def train_agent(self):
         print('\nTraining agent using sampled data from replay buffer...')
         all_logs = []
-        for train_step in range(self.params['num_agent_train_steps_per_iter']):
+        for train_step in range(self.params['num_agent_train_steps_per_itr']):
 
             # TODO (DONE!)
             # sample some data from the data buffer
             # HINT1: use the agent's sample function
             # HINT2: how much data = self.params['train_batch_size']
             ob_batch, ac_batch, re_batch, \
-            next_ob_batch, terminal_batch = self.agent.sample(self.batch_size)
+            next_ob_batch, terminal_batch = self.agent.sample(self.params['train_batch_size'])
 
             # TODO (DONE!)
             # use the sampled data to train an agent

@@ -108,7 +108,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         obs = ptu.from_numpy(obs)
         with torch.no_grad():
             act = self(obs).sample()
-        return act
+        return ptu.to_numpy(act)
         # the LoadedGaussianPolicy implementation of get_action uses
         # self(observation). I still don't understand why you wrap it with self.
 
@@ -126,7 +126,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         if self.discrete:
             return Categorical(logits=self.logits_na(observation))
         else:
-            return Normal(self.mean_net(observation), torch.exp(self.logstd(observation)))
+            return Normal(self.mean_net(observation), torch.exp(self.logstd))
 
 
 #####################################################
