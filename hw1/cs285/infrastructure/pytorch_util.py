@@ -53,7 +53,7 @@ def build_mlp(
     layers.append(nn.Linear(input_size, size))
     layers.append(activation)
     # for the next layers up until the last one
-    for i in range(n_layers-1): # not sure, maybe -2?
+    for i in range(n_layers-2):
         layers.append(nn.Linear(size, size))
         layers.append(activation)
     # for the last layer (output)
